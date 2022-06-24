@@ -19,13 +19,20 @@ set(CAIRO_WIN32_STATIC_BUILD 0)
 if(UNIX OR APPLE OR MINGW)
     add_definitions(-DHAVE_STDINT_H -DCAIRO_HAS_PTHREAD -D_GNU_SOURCE -DHAVE_UINT64_T)
 endif()
-if (UNIX AND NOT APPLE)
-    set(CAIRO_HAS_FC_FONT 1)
+
+# @chanhaeng.lee UNIX AND WIN32
+if (UNIX OR WIN32)
     set(CAIRO_HAS_FT_FONT 1)
-    if(NOT DEFINED $ENV{VERBOSE})
-        set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-attributes -Wno-cpp")
+
+    # @chanhaeng.lee : only with UNIX
+    if(UNIX)
+        set(CAIRO_HAS_FC_FONT 1)
+        if(NOT DEFINED $ENV{VERBOSE})
+            set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-attributes -Wno-cpp")
+        endif()
     endif()
 endif()
+
 if (APPLE)
     set(CAIRO_HAS_QUARTZ_FONT 1)
     set(CAIRO_HAS_QUARTZ_SURFACE 1)
@@ -160,7 +167,10 @@ if (NOT APPLE)
     list(REMOVE_ITEM ${PROJECT_NAME}_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/cairo-quartz-font.c)
     list(REMOVE_ITEM ${PROJECT_NAME}_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/cairo-quartz-surface.c)
 endif()
-if (NOT UNIX OR APPLE)
+
+# chanhaeng.lee : use cairo-ft-font always in windows and unix
+# if (NOT UNIX OR APPLE)
+if (APPLE)
     list(REMOVE_ITEM ${PROJECT_NAME}_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/cairo-ft-font.c)
 endif()
 
@@ -210,6 +220,14 @@ endif()
 if(UNIX AND NOT APPLE)
     target_include_directories(${PROJECT_NAME} PRIVATE /usr/include/freetype2)
     target_link_libraries(${PROJECT_NAME} PUBLIC freetype fontconfig)
+endif()
+
+if(WIN32)
+    target_include_directories(${PROJECT_NAME} PUBLIC ../freetype/include)
+    target_link_libraries(${PROJECT_NAME} PUBLIC freetype)
+    target_compile_definitions(${PROJECT_NAME}
+        PRIVATE -DCAIRO_HAS_FT_FONT=1
+        PRIVATE -DCAIRO_HAS_FC_FONT=0) # fontconfig can't be built in windows
 endif()
 
 message(STATUS "Using local version of ${PROJECT_NAME}")

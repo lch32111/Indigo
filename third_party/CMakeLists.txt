@@ -13,6 +13,15 @@ if (BUILD_INDIGO OR BUILD_INDIGO_UTILS)
             add_subdirectory(cairo-wasm)
         else()
             add_subdirectory(cairo)
+
+            # @chanhaeng.lee : added for freetype for windows
+            if(WIN32)
+                # ignore freetype install
+                set(SKIP_INSTALL_HEADERS ON CACHE BOOL "FreeType Ignore Install Headers")
+                set(SKIP_INSTALL_ALL ON CACHE BOOL "FreeType Ignore Install All")
+                add_subdirectory(freetype)
+                add_dependencies(cairo freetype)
+            endif()
         endif()
     endif()
 endif ()
@@ -25,3 +34,4 @@ if (ENABLE_TESTS)
 endif()
 
 add_subdirectory(object_threadsafe)
+
