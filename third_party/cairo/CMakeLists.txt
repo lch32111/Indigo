@@ -227,7 +227,13 @@ if(WIN32)
     target_link_libraries(${PROJECT_NAME} PUBLIC freetype)
     target_compile_definitions(${PROJECT_NAME}
         PRIVATE -DCAIRO_HAS_FT_FONT=1
-        PRIVATE -DCAIRO_HAS_FC_FONT=0) # fontconfig can't be built in windows
+        PRIVATE -DCAIRO_HAS_FC_FONT=0 # fontconfig can't be built in windows
+
+        # refer to https://gitlab.freedesktop.org/cairo/cairo/-/merge_requests/5
+        # if we do not give these HAVE_* the cairo calls free function for a freetype structure which you should not call
+        PRIVATE -DHAVE_FT_DONE_MM_VAR 
+        PRIVATE -DHAVE_FT_GET_VAR_DESIGN_COORDINATES 
+        ) 
 endif()
 
 message(STATUS "Using local version of ${PROJECT_NAME}")
