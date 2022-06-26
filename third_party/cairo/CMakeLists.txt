@@ -218,7 +218,7 @@ if(WIN32)
     target_link_libraries(${PROJECT_NAME} PUBLIC msimg32 gdi32)
 endif()
 if(UNIX AND NOT APPLE)
-    target_include_directories(${PROJECT_NAME} PRIVATE /usr/include/freetype2)
+    target_include_directories(${PROJECT_NAME} PUBLIC /usr/include/freetype2) # you should set it as public to include cairo-ft.h
     target_link_libraries(${PROJECT_NAME} PUBLIC freetype fontconfig)
 endif()
 
